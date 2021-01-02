@@ -1,10 +1,12 @@
 import configparser
-from datetime import datetime
 import os
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf, col
-from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format
+from datetime import datetime
 
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import (col, date_format, dayofmonth, hour,
+                                   monotonically_increasing_id, month, udf,
+                                   weekofyear, year)
+from pyspark.sql.types import DateType, IntegerType, TimestampType
 
 config = configparser.ConfigParser()
 config.read('dl.cfg')
@@ -70,10 +72,9 @@ def process_log_data(spark, input_data, output_data):
     df = df.withColumn('date_time', get_datetime('ts'))
     
     # extract columns to create time table
-    time_table = df.select("start_time").dropDuplicates() \
-        .withColumn("hour", hour(col("start_time")).withColumn("day", day(col("start_time")) \
-        .withColumn("week", week(col("start_time")).withColumn("month", month(col("start_time")) \
-        .withColumn("year", year(col("start_time")).withColumn("weekday", date_format(col("start_time"), 'E')) 
+    time_table = df.select("start_time").dropDuplicates().withColumn("hour", hour(col("start_time"))).withColumn("day", day(col("start_time"))) \
+        .withColumn("week", week(col("start_time"))).withColumn("month", month(col("start_time"))) \
+        .withColumn("year", year(col("start_time"))).withColumn("weekday", date_format(col("start_time"), 'E'))) 
     
     # write time table to parquet files partitioned by year and month
     time_table.write.partitionBy('year', 'month').parquet(output_data + 'time/')
