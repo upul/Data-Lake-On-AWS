@@ -1,3 +1,8 @@
+import findspark
+
+findspark.init("/home/ubuntu/spark-2.1.1-bin-hadoop2.7")
+import pyspark
+
 import configparser
 import os
 from datetime import datetime
@@ -6,7 +11,6 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import (
     col,
     date_format,
-    day,
     dayofmonth,
     hour,
     monotonically_increasing_id,
@@ -94,7 +98,7 @@ def process_log_data(spark, input_data, output_data):
         df.select("start_time")
         .dropDuplicates()
         .withColumn("hour", hour(col("start_time")))
-        .withColumn("day", day(col("start_time")))
+        .withColumn("day", dayofmonth(col("start_time")))
         .withColumn("week", week(col("start_time")))
         .withColumn("month", month(col("start_time")))
         .withColumn("year", year(col("start_time")))
