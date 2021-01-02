@@ -116,7 +116,7 @@ def process_log_data(spark, input_data, output_data):
     # extract columns from joined song and log datasets to create songplays table
     songs_logs = df.join(songs_df, (df.song == songs_df.title))
     artists_songs_logs = songs_logs.join(
-        df_artists, (songs_logs.artist == df_artists.name)
+        df_artists, (songs_logs.artist == df_artists.artist_name)
     )
 
     songplays = artists_songs_logs.join(
